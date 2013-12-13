@@ -18,3 +18,10 @@ class TestDocument(TestCase):
         actual_multi_document = MultiDocumentCorpus(self.test_document_path).multi_document()
 
         self.assertEquals(actual_multi_document, expected_multi_document)
+
+    def test_shouldGenerateTopicModelGivenADocumentCorpus(self):
+        test_documents_path = ospath.join(ospath.dirname(__file__), "test_data/movie_review_dataset")
+        documents = MultiDocumentCorpus(test_documents_path).multi_document()
+        context = documents.generate_topic_model()
+        for topic in context.print_topics(topics=context.num_topics):
+            print topic

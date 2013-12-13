@@ -1,5 +1,6 @@
+from collections import defaultdict
 import os
-from prasang.core import Document
+from prasang.core import Document, LDATransformation
 from prasang.utils import FileReader
 
 
@@ -9,6 +10,18 @@ class MultiDocument:
         if not isinstance(documents[0], Document): raise RuntimeError(
             "Illegal MultiDocument, A Multi Document is a collection of Documents")
         self.documents = documents
+
+    def tokenised_sentences(self):
+        sentences = defaultdict(list)
+        for document in self.documents:
+            sentences.update(document.tokenised_sentences_dict())
+        return sentences
+
+    def generate_topic_model(self):
+        tokenised_sentences = self.tokenised_sentences()
+        self.transformation = LDATransformation(tokenised_sentences)
+        topic_tags = self.transformation.transform()
+        return topic_tags
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__)

@@ -1,11 +1,24 @@
+from collections import defaultdict
 from prasang.utils.text_processor import TextProcessor
 
 
 class Document:
-    def __init__(self, id=0,text="",text_processor=TextProcessor()):
+    def __init__(self, id=0, text="", text_processor=TextProcessor()):
         self.id = id
         self.text_processor = text_processor
         self.text = text_processor.remove_non_ascii(text)
+
+    def tokenised_sentences_dict(self):
+        sentences = defaultdict(list)
+        sentence_list = self.text_processor.nltk_sentences(self.text)
+        for id, sentence in enumerate(sentence_list):
+            stopped_sentence = self.text_processor.stopped_tokenize(sentence)
+            if stopped_sentence:
+                sentences[self.sent_hashKey(id)] = stopped_sentence
+        return sentences
+
+    def sent_hashKey(self,sent_number):
+        return "doc" + str(self.id) + "-" + "sent" + str(sent_number)
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__)
