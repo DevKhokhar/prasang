@@ -1,18 +1,14 @@
 from collections import defaultdict
-from prasang.utils.text_processor import TextProcessor
+from pattern.vector import Document
+from prasang.utils import TextProcessor
 
-
-class Document:
-    def __init__(self, id=0, text="", text_processor=TextProcessor()):
-        self.id = id
-        self.text_processor = text_processor
-        self.text = text_processor.remove_non_ascii(text)
+class DocumentModel(Document):
 
     def tokenised_sentences_dict(self):
         sentences = defaultdict(list)
-        sentence_list = self.text_processor.nltk_sentences(self.text)
+        sentence_list = TextProcessor().nltk_sentences(' '.join(self.terms.keys()))
         for id, sentence in enumerate(sentence_list):
-            stopped_sentence = self.text_processor.stopped_tokenize(sentence)
+            stopped_sentence = TextProcessor().stopped_tokenize(sentence)
             if stopped_sentence:
                 sentences[self.sent_hashKey(id)] = stopped_sentence
         return sentences
@@ -22,10 +18,10 @@ class Document:
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__)
-                and self.text == other.text and self.id == other.id)
+                and set(self.terms.keys()) == set(other.terms.keys()) and self.name == other.name)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return hash(self.id) ^ hash(self.text)
+        return hash(self.name) ^ hash(' '.join(self.terms.keys()))

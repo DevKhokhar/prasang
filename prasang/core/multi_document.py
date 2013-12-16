@@ -1,16 +1,10 @@
 from collections import defaultdict
 import os
-from prasang.core import Document, LDATransformation
+from prasang.core import LDATransformation, DocumentModel
 from prasang.utils import FileReader
+from pattern.vector import Model
 
-
-class MultiDocument:
-    def __init__(self, documents=None):
-        if not documents: documents = list()
-        if not isinstance(documents[0], Document): raise RuntimeError(
-            "Illegal MultiDocument, A Multi Document is a collection of Documents")
-        self.documents = documents
-
+class MultiDocumentModel(Model):
     def tokenised_sentences(self):
         sentences = defaultdict(list)
         for document in self.documents:
@@ -19,8 +13,8 @@ class MultiDocument:
 
     def generate_topic_model(self):
         tokenised_sentences = self.tokenised_sentences()
-        self.transformation = LDATransformation(tokenised_sentences)
-        topic_tags = self.transformation.transform()
+        transformation = LDATransformation(tokenised_sentences)
+        topic_tags = transformation.transform()
         return topic_tags
 
     def __eq__(self, other):
@@ -42,9 +36,10 @@ class MultiDocumentCorpus:
         for text_file in text_files:
             filepath = os.path.join(abs_path, text_file)
             text = FileReader.read(filepath)
-            documents.append(Document(id=text_file, text=text))
+            doc = DocumentModel(string=text, name=text_file)
+            documents.append(doc)
 
-        return MultiDocument(documents=documents)
+        return MultiDocumentModel(documents=documents)
 
     def _list_files(self):
         path = os.path.abspath(self.path)
