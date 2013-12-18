@@ -5,15 +5,9 @@ from prasang.utils import FileReader
 from pattern.vector import Model
 
 class MultiDocumentModel(Model):
-    def tokenised_sentences(self):
-        sentences = defaultdict(list)
-        for document in self.documents:
-            sentences.update(document.tokenised_sentences_dict())
-        return sentences
 
     def generate_topic_model(self):
-        tokenised_sentences = self.tokenised_sentences()
-        transformation = LDATransformation(tokenised_sentences)
+        transformation = LDATransformation(self)
         topic_tags = transformation.transform()
         return topic_tags
 
